@@ -82,6 +82,7 @@ Sub flag()
         If Int(Cells(j + 1, 10).Value) <> Int(Cells(j, 10).Value) And (Cells(j, 10).Value - Int(Cells(j, 10).Value)) < 0.8125 Then
           Cells(j, 12).Value = "vv"
         End If
+      End If
     End If
   Next j
 End Sub
