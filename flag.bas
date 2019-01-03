@@ -63,7 +63,7 @@ Sub flag()
       End If
     Else
       If Cells(j, 5) = 1 Then
-        If Int(Cells(j + 1, 10).Value) <> Int(Cells(j, 10).Value) And (Cells(j, 10).Value - Int(Cells(j, 10).Value)) < 0.541667 Then
+        If Int(Cells(j + 1, 10).Value) <> Int(Cells(j, 10).Value) And (Cells(j, 10).Value - Int(Cells(j, 10).Value)) < 0.53819444 Then
           Cells(j, 12).Value = "vv"
         End If
       ElseIf Cells(j, 5) = 2 Then
