@@ -11,11 +11,25 @@ Sub insertrow()
       If Cells(i, 5).Value = 1 Then
         Cells(i, 9).Value = Int(Cells(i+1, 9).Value) + 0.25
       ElseIf Cells(i, 5).Value = 2 Then
-        Cells(i, 9).Value = Int(Cells(i+1, 9).Value) + 0.58333
+        If Cells(i, 4).Value = "normal" Then
+          Cells(i, 9).Value = Int(Cells(i+1, 9).Value) + 0.58333
+        ElseIf Cells(i, 4).Value = "overtime" Then
+          Cells(i, 9).Value = Int(Cells(i+1, 9).Value) + 0.5625
+        End If
       ElseIf Cells(i, 5).Value = 3 Then
-        Cells(i, 9).Value = Int(Cells(i+1, 9).Value) + 0.916666666666667
-      Else
-        Cells(i, 9).Value = Int(Cells(i+1, 9).Value) + 0.3125
+        If Cells(i, 4).Value = "normal" Then
+          Cells(i, 9).Value = Int(Cells(i+1, 9).Value) + 0.916666666666667
+        ElseIf Cells(i, 4).Value = "overtime" Then
+          Cells(i, 9).Value = Int(Cells(i+1, 9).Value) + 0.875
+        End If
+      ElseIf Cells(i, 5).Value = 4 Then
+        If Cells(i, 4).Value = "normal" Then
+          Cells(i, 9).Value = Int(Cells(i+1, 9).Value) + 0.3125
+        ElseIf Cells(i, 4).Value = "overtime" Then
+          Cells(i, 9).Value = Int(Cells(i+1, 9).Value) + 0.29166667
+        End If
+      ElseIf Cells(i, 5).Value = 5 Then
+        Cells(i, 9).Value = Int(Cells(i+1, 9).Value) + 0.5
       End If
       Cells(i+1, 9).Copy Destination:=Cells(i, 10)
       i = i + 1
@@ -29,13 +43,31 @@ Sub insertrow()
       Cells(i+1, 8).Value = "Brief_preparation_travel_dll"
       Cells(i, 10).Copy Destination:=Cells(i+1, 9)
       If Cells(i+1, 5).Value = 1 Then
-        Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.58333
+        If Cells(i+1, 4).Value = "normal" Then
+          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.58333
+        ElseIf Cells(i+1, 4).Value = "overtime" Then
+          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.54166667
+        End If
       ElseIf Cells(i+1, 5).Value = 2 Then
-        Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.916666666666667
+        If Cells(i+1, 4).Value = "normal" Then
+          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.916666666666667
+        ElseIf Cells(i+1, 4).Value = "overtime" Then
+          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.875
+        End If
       ElseIf Cells(i+1, 5).Value = 3 Then
-        Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.25
-      Else
-        Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.6875
+        If Cells(i+1, 4).Value = "normal" Then
+          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.25
+        ElseIf Cells(i+1, 4).Value = "overtime" Then
+          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.1875
+        End If
+      ElseIf Cells(i+1, 5).Value = 4 Then
+        If Cells(i+1, 4).Value = "normal" Then
+          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.6875
+        ElseIf Cells(i+1, 4).Value = "overtime" Then
+          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.60416667
+        End If
+      ElseIf Cells(i+1, 5).Value = 5 Then
+        Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.8125
       End If
       i = i + 1
     End If
