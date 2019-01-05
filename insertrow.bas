@@ -44,19 +44,19 @@ Sub insertrow()
       Cells(i, 10).Copy Destination:=Cells(i+1, 9)
       If Cells(i+1, 5).Value = 1 Then
         If Cells(i+1, 4).Value = "normal" Then
-          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.58333
+          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.60416667
         ElseIf Cells(i+1, 4).Value = "overtime" Then
           Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.54166667
         End If
       ElseIf Cells(i+1, 5).Value = 2 Then
         If Cells(i+1, 4).Value = "normal" Then
-          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.916666666666667
+          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.9375
         ElseIf Cells(i+1, 4).Value = "overtime" Then
           Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.875
         End If
       ElseIf Cells(i+1, 5).Value = 3 Then
         If Cells(i+1, 4).Value = "normal" Then
-          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.25
+          Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.27083333
         ElseIf Cells(i+1, 4).Value = "overtime" Then
           Cells(i+1, 10).Value = Int(Cells(i, 10).Value) + 0.1875
         End If
