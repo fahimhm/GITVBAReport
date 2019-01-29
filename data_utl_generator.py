@@ -2,15 +2,19 @@
 import pandas as pd
 import xlrd
 import numpy as np
+#%%
 
 # block-2: load data source
 data_1 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name = 'DATA1')
 data_2 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name = 'DATA2')
+#%%
 
 # block-3: merge two data
 data_mh = pd.concat([data_1, data_2], ignore_index=True)
 data_mh = data_mh.sort_values(['name', 'date_start'], ascending=True)
 data_mh.reset_index(inplace=True, drop=True)
+data_mh.head()
+#%%
 
 # block-4: add Planned_spare_time for idle time in early shift
 data_mh['only_date_start'] = data_mh['date_start'].dt.date
