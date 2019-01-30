@@ -6,15 +6,17 @@ import numpy as np
 
 # block-2: load data source
 #%%
-data_1 = pd.read_excel(r'C:\Users\Fahim Hadi Maula\Git\GITVBAReport\DATA UTILITY.xlsx', sheet_name = 'DATA1')
-data_2 = pd.read_excel(r'C:\Users\Fahim Hadi Maula\Git\GITVBAReport\DATA UTILITY.xlsx', sheet_name = 'DATA2')
+# data_1 = pd.read_excel(r'C:\Users\Fahim Hadi Maula\Git\GITVBAReport\DATA UTILITY.xlsx', sheet_name = 'DATA1')
+# data_2 = pd.read_excel(r'C:\Users\Fahim Hadi Maula\Git\GITVBAReport\DATA UTILITY.xlsx', sheet_name = 'DATA2')
+data_1 = pd.read_excel(r'C:\Users\maula.fahim\github\dept_report\DATA UTILITY.xlsx', sheet_name = 'DATA1')
+data_2 = pd.read_excel(r'C:\Users\maula.fahim\github\dept_report\DATA UTILITY.xlsx', sheet_name = 'DATA2')
 
 # block-3: merge two data
 #%%
 data_mh = pd.concat([data_1, data_2], ignore_index=True)
 data_mh = data_mh.sort_values(['name', 'date_start'], ascending=True)
 data_mh.reset_index(inplace=True, drop=True)
-data_mh.head(15)
+# data_mh.head(15)
 
 # block-4: add Planned_spare_time for idle time in early shift
 #%%
@@ -172,10 +174,16 @@ for idx in data_mh.index:
         data_mh.at[idx, 'task_cat'] = 'Unplanned'
         data_mh.at[idx, 'machine'] = 'idle_time'
 data_mh = data_mh.drop('flag', axis=1)
+data_mh['year'] = data_mh['year'].astype('category')
+data_mh['week'] = data_mh['week'].astype('category')
+data_mh['shift'] = data_mh['shift'].astype('category')
 
 # ---- save to excel -----
-writer = pd.ExcelWriter('data_utility.xlsx')
-data_mh.to_excel(writer, 'DATA')
-writer.save()
+# writer = pd.ExcelWriter('data_utility.xlsx')
+# data_mh.to_excel(writer, 'DATA')
+# writer.save()
 
+#%%
 # ---- create plot with bokeh----
+group_prod = data_mh.groupby(['name', 'month', 'task_cat']).sum()
+group_prod
