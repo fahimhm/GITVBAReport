@@ -178,34 +178,35 @@ data_mh['year'] = data_mh['year'].astype('category')
 data_mh['week'] = data_mh['week'].astype('category')
 data_mh['shift'] = data_mh['shift'].astype('category')
 
+#%%
 # ---- save to excel -----
-# writer = pd.ExcelWriter('data_utility.xlsx')
-# data_mh.to_excel(writer, 'DATA')
-# writer.save()
+writer = pd.ExcelWriter('data_utility.xlsx')
+data_mh.to_excel(writer, 'DATA')
+writer.save()
 
 #%%
 # ---- create barplot with bokeh----
-mh_2018 = data_mh[data_mh['year'] == 2018]
-group_prod = mh_2018.groupby(['name', 'month']).apply(lambda x: x[(x['task_cat'] != 'Break') & (x['task_cat'] != 'Unplanned')]['duration'].sum()*100.0/x[x['task_cat'] != 'Break']['duration'].sum()).unstack()
-group_prod[10].tolist()
-
+# %Productivity report per month - 2018
 from bokeh.io import show, output_notebook
-from bokeh.models import ColumnDataSource, FactorRange
+from bokeh.models import ColumnDataSource, FactorRange, Span
 from bokeh.plotting import figure
 import itertools
 
+mh_2018 = data_mh[data_mh['year'] == 2018] # replace 2018 >> 2019
+group_prod = mh_2018.groupby(['name', 'month']).apply(lambda x: x[(x['task_cat'] != 'Break') & (x['task_cat'] != 'Unplanned')]['duration'].sum()*100.0/x[x['task_cat'] != 'Break']['duration'].sum()).unstack()
+
 names = group_prod.index.get_level_values(0).tolist()
-months = data_mh[data_mh['year'] == 2018]['month'].unique().tolist()
+months = data_mh[data_mh['year'] == 2018]['month'].unique().tolist() # replace 2018 >> 2019
 
 x = [(name, str(month)) for name in names for month in months]
-l = [group_prod[month].tolist() for month in months]
+l = [group_prod.loc[name, :].tolist() for name in names]
 l = list(itertools.chain(*l))
 counts = tuple(l)
 
 source = ColumnDataSource(data = dict(x=x, counts=counts))
 
 output_notebook()
-plot_mh = figure(x_range = FactorRange(*x), plot_height = 250, title = "%Productivity", toolbar_location = "right")
+plot_mh = figure(x_range = FactorRange(*x), plot_height = 400, title = "%Productivity", toolbar_location = "right")
 plot_mh.vbar(x = 'x', top = 'counts', width = 0.9, source = source)
 
 plot_mh.y_range.start = 0
@@ -213,4 +214,19 @@ plot_mh.x_range.range_padding = 0.1
 plot_mh.xaxis.major_label_orientation = 1
 plot_mh.xgrid.grid_line_color = None
 
+target_line = Span(location = 70, dimension = 'width', line_color = 'red', line_dash = 'dashed', line_width = 2)
+plot_mh.add_layout(target_line)
+
 show(plot_mh)
+
+#%%
+# %Productivity VS %WO-Realization 2018
+
+# see: https://bokeh.pydata.org/en/latest/docs/user_guide/categorical.html
+
+prod_month = mh_2018.groupby('month').apply(lambda x: x[(x['task_cat'] != 'Break') & (x['task_cat'] != 'Unplanned')]['duration'].sum()*100.0/x[x['task_cat'] != 'Break']['duration'].sum())
+wo_month = mh_2018.groupby('month').apply(lambda x: x[x['wo_status'] == 'done']['wo'].nunique()*100.0/x['wo'].nunique())
+
+output_notebook()
+mh_vs_wo = figure(plot_height = 400, title = "%Productivity vs %WO Realization", toolbar_location = "right")
+mh_vs_wo.vbar(x = months, width = 0.9, source = )
