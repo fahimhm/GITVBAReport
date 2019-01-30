@@ -8,8 +8,8 @@ import numpy as np
 #%%
 # data_1 = pd.read_excel(r'C:\Users\Fahim Hadi Maula\Git\GITVBAReport\DATA UTILITY.xlsx', sheet_name = 'DATA1')
 # data_2 = pd.read_excel(r'C:\Users\Fahim Hadi Maula\Git\GITVBAReport\DATA UTILITY.xlsx', sheet_name = 'DATA2')
-data_1 = pd.read_excel(r'C:\Users\maula.fahim\github\dept_report\DATA UTILITY.xlsx', sheet_name = 'DATA1')
-data_2 = pd.read_excel(r'C:\Users\maula.fahim\github\dept_report\DATA UTILITY.xlsx', sheet_name = 'DATA2')
+data_1 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name = 'DATA1')
+data_2 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name = 'DATA2')
 
 # block-3: merge two data
 #%%
@@ -185,5 +185,25 @@ data_mh['shift'] = data_mh['shift'].astype('category')
 
 #%%
 # ---- create plot with bokeh----
-group_prod = data_mh.groupby(['name', 'month', 'task_cat']).sum()
+mh_2018 = data_mh[data_mh['year'] == 2018]
+group_prod = mh_2018.groupby(['name', 'month']).apply(lambda x: x[(x['task_cat'] != 'Break') & (x['task_cat'] != 'Unplanned')]['duration'].sum()*100.0/x[x['task_cat'] != 'Break']['duration'].sum()).unstack()
 group_prod
+
+from bokeh.plotting import figure, output_notebook, show
+from bokeh.models import ColumnDataSource
+from bokeh.transform import dodge
+
+output_notebook()
+source = ColumnDataSource(data = group_prod.to_dict(orient='list'))
+
+plot_mh_2018 = figure(x_range = group_prod['name'].tolist(), y_range = (0, 100), plot_height = 250, title = "%Productivity Report", toolbar_location = None, tools = "")
+
+arr_month = data_mh[data_mh['year'] == 2018]['month'].unique()
+locplot = 0 - (2.5*len(arr_month))
+for month in arr_month:
+    plot_mh_2018.vbar(x = dodge('duration', locplot, range = plot_mh_2018.x_range), top = month, width = 0.4, source = source, legend = value(month))
+    locplot = locplot + 2.5
+
+plot_mh_2018.x_range.range_padding = 0.1
+plot_mh_2018.xgrid.grid_line_color = None
+plot_mh_2018.legend.location = "top_left"
