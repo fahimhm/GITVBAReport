@@ -6,10 +6,10 @@ import numpy as np
 
 # block-2: load data source
 #%%
-# data_1 = pd.read_excel(r'C:\Users\Fahim Hadi Maula\Git\GITVBAReport\DATA UTILITY.xlsx', sheet_name = 'DATA1')
-# data_2 = pd.read_excel(r'C:\Users\Fahim Hadi Maula\Git\GITVBAReport\DATA UTILITY.xlsx', sheet_name = 'DATA2')
-data_1 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name = 'DATA1')
-data_2 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name = 'DATA2')
+data_1 = pd.read_excel(r'Documents\DATA UTILITY.xlsx', sheet_name = 'DATA1')
+data_2 = pd.read_excel(r'Documents\DATA UTILITY.xlsx', sheet_name = 'DATA2')
+# data_1 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name = 'DATA1')
+# data_2 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name = 'DATA2')
 
 # block-3: merge two data
 #%%
@@ -184,26 +184,33 @@ data_mh['shift'] = data_mh['shift'].astype('category')
 # writer.save()
 
 #%%
-# ---- create plot with bokeh----
+# ---- create barplot with bokeh----
 mh_2018 = data_mh[data_mh['year'] == 2018]
 group_prod = mh_2018.groupby(['name', 'month']).apply(lambda x: x[(x['task_cat'] != 'Break') & (x['task_cat'] != 'Unplanned')]['duration'].sum()*100.0/x[x['task_cat'] != 'Break']['duration'].sum()).unstack()
-group_prod
+group_prod[10].tolist()
 
-from bokeh.plotting import figure, output_notebook, show
-from bokeh.models import ColumnDataSource
-from bokeh.transform import dodge
+from bokeh.io import show, output_notebook
+from bokeh.models import ColumnDataSource, FactorRange
+from bokeh.plotting import figure
+import itertools
+
+names = group_prod.index.get_level_values(0).tolist()
+months = data_mh[data_mh['year'] == 2018]['month'].unique().tolist()
+
+x = [(name, str(month)) for name in names for month in months]
+l = [group_prod[month].tolist() for month in months]
+l = list(itertools.chain(*l))
+counts = tuple(l)
+
+source = ColumnDataSource(data = dict(x=x, counts=counts))
 
 output_notebook()
-source = ColumnDataSource(data = group_prod.to_dict(orient='list'))
+plot_mh = figure(x_range = FactorRange(*x), plot_height = 250, title = "%Productivity", toolbar_location = "right")
+plot_mh.vbar(x = 'x', top = 'counts', width = 0.9, source = source)
 
-plot_mh_2018 = figure(x_range = group_prod['name'].tolist(), y_range = (0, 100), plot_height = 250, title = "%Productivity Report", toolbar_location = None, tools = "")
+plot_mh.y_range.start = 0
+plot_mh.x_range.range_padding = 0.1
+plot_mh.xaxis.major_label_orientation = 1
+plot_mh.xgrid.grid_line_color = None
 
-arr_month = data_mh[data_mh['year'] == 2018]['month'].unique()
-locplot = 0 - (2.5*len(arr_month))
-for month in arr_month:
-    plot_mh_2018.vbar(x = dodge('duration', locplot, range = plot_mh_2018.x_range), top = month, width = 0.4, source = source, legend = value(month))
-    locplot = locplot + 2.5
-
-plot_mh_2018.x_range.range_padding = 0.1
-plot_mh_2018.xgrid.grid_line_color = None
-plot_mh_2018.legend.location = "top_left"
+show(plot_mh)
