@@ -6,10 +6,11 @@ import numpy as np
 
 # block-2: load data source
 #%%
-data_1 = pd.read_excel(r'Documents\DATA UTILITY.xlsx', sheet_name = 'DATA1')
-data_2 = pd.read_excel(r'Documents\DATA UTILITY.xlsx', sheet_name = 'DATA2')
-# data_1 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name = 'DATA1')
-# data_2 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name = 'DATA2')
+# data_1 = pd.read_excel(r'Documents\DATA UTILITY.xlsx', sheet_name = 'DATA1')
+# data_2 = pd.read_excel(r'Documents\DATA UTILITY.xlsx', sheet_name = 'DATA2')
+data_1 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name = 'DATA1')
+data_2 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name = 'DATA2')
+data_3 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name = 'DATA3')
 
 # block-3: merge two data
 #%%
@@ -221,12 +222,18 @@ show(plot_mh)
 
 #%%
 # %Productivity VS %WO-Realization 2018
-
-# see: https://bokeh.pydata.org/en/latest/docs/user_guide/categorical.html
-
-prod_month = mh_2018.groupby('month').apply(lambda x: x[(x['task_cat'] != 'Break') & (x['task_cat'] != 'Unplanned')]['duration'].sum()*100.0/x[x['task_cat'] != 'Break']['duration'].sum())
-wo_month = mh_2018.groupby('month').apply(lambda x: x[x['wo_status'] == 'done']['wo'].nunique()*100.0/x['wo'].nunique())
+data_3 = data_3[data_3['year'] == 2018]
+x_month = [str(month) for month in months]
+prod_month = mh_2018.groupby('month').apply(lambda x: x[(x['task_cat'] != 'Break') & (x['task_cat'] != 'Unplanned')]['duration'].sum()*100.0/x[x['task_cat'] != 'Break']['duration'].sum()).tolist()
+wo_month = data_3.groupby('month').apply(lambda x: x[x['wo_status'] == 'done']['wo'].nunique()*100.0/x['wo'].nunique()).tolist()
 
 output_notebook()
-mh_vs_wo = figure(plot_height = 400, title = "%Productivity vs %WO Realization", toolbar_location = "right")
-mh_vs_wo.vbar(x = months, width = 0.9, source = )
+mh_vs_wo = figure(x_range = x_month, plot_height = 400, title = "%Productivity vs %WO realization", toolbar_location = "right")
+mh_vs_wo.vbar(x = x_month, top = prod_month, width = 0.9)
+mh_vs_wo.line(x = x_month, y = wo_month, color = "red", line_width = 2)
+mh_vs_wo.circle(x = x_month, y = wo_month, fill_color = "white")
+
+mh_vs_wo.xgrid.grid_line_color = None
+mh_vs_wo.y_range.start = 0
+
+show(mh_vs_wo)
