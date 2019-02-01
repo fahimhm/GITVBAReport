@@ -17,10 +17,18 @@ data_3 = pd.read_excel(r'D:\14-Report Engineering\DATA UTILITY.xlsx', sheet_name
 data_mh = pd.concat([data_1, data_2], ignore_index=True)
 data_mh = data_mh.sort_values(['name', 'date_start'], ascending=True)
 data_mh.reset_index(inplace=True, drop=True)
-# data_mh.head(15)
+
+# block-3a: cek overlap
+#%%
+data_mh['remark'] = 'no_overlap'
+for idx in range(1, len(data_mh.index)-1):
+    if ((data_mh.loc[idx, 'name'] == data_mh.loc[idx+1, 'name']) & (data_mh.loc[idx+1, 'date_start'] < data_mh.loc[idx, 'date_finish'])) or ((data_mh.loc[idx, 'name'] == data_mh.loc[idx-1, 'name']) & (data_mh.loc[idx, 'date_start'] < data_mh.loc[idx-1, 'date_finish'])):
+        data_mh.at[idx, 'remark'] = 'overlap'
+data_mh[data_mh['remark'] == 'overlap']
 
 # block-4: add Planned_spare_time for idle time in early shift
 #%%
+data_mh = data_mh.drop('remark', axis=1)
 data_mh['only_date_start'] = data_mh['date_start'].dt.date
 data_mh['hour_start'] = data_mh['date_start'].dt.hour + (data_mh['date_start'].dt.minute / 60)
 col = data_mh.columns
@@ -118,31 +126,31 @@ data = []
 for idx in range(len(data_mh.index) - 1):
     if data_mh.loc[idx, 'shift'] == 1 and (data_mh.loc[idx, 'hour_start'] <= 10.0 and data_mh.loc[idx, 'hour_finish'] >= 10.5):
         data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], 'Break', 'NaN', 'NaN', 'NaN', 'Break', data_mh['date_start'].dt.date.apply(str)[idx] + str(' 10:00:00'), data_mh['date_start'].dt.date.apply(str)[idx] + str(' 10:30:00'), 'NaN', 'NaN', 'NaN'])
-        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 10:30:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
+        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'wo_status'], data_mh.loc[idx, 'system'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 10:30:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
         data_mh.at[idx, 'date_finish'] = data_mh['date_finish'].dt.date.apply(str)[idx] + str(' 10:00:00')
     elif data_mh.loc[idx, 'shift'] == 2 and data_mh.loc[idx, 'hour_start'] <= 18.0 and data_mh.loc[idx, 'hour_finish'] >= 18.5:
         data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], 'Break', 'NaN', 'NaN', 'NaN', 'Break', data_mh['date_start'].dt.date.apply(str)[idx] + str(' 18:00:00'), data_mh['date_start'].dt.date.apply(str)[idx] + str(' 18:30:00'), 'NaN', 'NaN', 'NaN'])
-        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 18:30:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
+        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'wo_status'], data_mh.loc[idx, 'system'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 18:30:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
         data_mh.at[idx, 'date_finish'] = data_mh['date_finish'].dt.date.apply(str)[idx] + str(' 18:00:00')
     elif data_mh.loc[idx, 'day_cat'] == 'normal' and data_mh.loc[idx, 'shift'] == 3 and data_mh.loc[idx, 'hour_start'] <= 2.0 and data_mh.loc[idx, 'hour_finish'] >= 2.5:
         data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], 'Break', 'NaN', 'NaN', 'NaN', 'Break', data_mh['date_start'].dt.date.apply(str)[idx] + str(' 02:00:00'), data_mh['date_start'].dt.date.apply(str)[idx] + str(' 02:30:00'), 'NaN', 'NaN', 'NaN'])
-        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 02:30:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
+        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'wo_status'], data_mh.loc[idx, 'system'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 02:30:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
         data_mh.at[idx, 'date_finish'] = data_mh['date_finish'].dt.date.apply(str)[idx] + str(' 02:00:00')
     elif data_mh.loc[idx, 'day_cat'] == 'normal' and data_mh.loc[idx, 'shift'] == 4 and data_mh.loc[idx, 'hour_start'] <= 12.0 and data_mh.loc[idx, 'hour_finish'] >= 13.0:
         data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], 'Break', 'NaN', 'NaN', 'NaN', 'Break', data_mh['date_start'].dt.date.apply(str)[idx] + str(' 12:00:00'), data_mh['date_start'].dt.date.apply(str)[idx] + str(' 13:00:00'), 'NaN', 'NaN', 'NaN'])
-        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 13:00:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
+        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'wo_status'], data_mh.loc[idx, 'system'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 13:00:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
         data_mh.at[idx, 'date_finish'] = data_mh['date_finish'].dt.date.apply(str)[idx] + str(' 12:00:00')
     elif data_mh.loc[idx, 'day_cat'] == 'overtime' and data_mh.loc[idx, 'shift'] == 3 and data_mh.loc[idx, 'hour_start'] <= 24.0 and data_mh.loc[idx, 'hour_finish'] >= 0.5:
         data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], 'Break', 'NaN', 'NaN', 'NaN', 'Break', data_mh['date_start'].dt.date.apply(str)[idx] + str(' 00:00:00'), data_mh['date_start'].dt.date.apply(str)[idx] + str(' 00:30:00'), 'NaN', 'NaN', 'NaN'])
-        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 00:30:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
+        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'wo_status'], data_mh.loc[idx, 'system'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 00:30:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
         data_mh.at[idx, 'date_finish'] = data_mh['date_finish'].dt.date.apply(str)[idx] + str(' 00:00:00')
     elif data_mh.loc[idx, 'day_cat'] == 'overtime' and data_mh.loc[idx, 'shift'] == 4 and data_mh.loc[idx, 'hour_start'] <= 10.0 and data_mh.loc[idx, 'hour_finish'] >= 10.5:
         data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], 'Break', 'NaN', 'NaN', 'NaN', 'Break', data_mh['date_start'].dt.date.apply(str)[idx] + str(' 10:00:00'), data_mh['date_start'].dt.date.apply(str)[idx] + str(' 10:30:00'), 'NaN', 'NaN', 'NaN'])
-        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 10:30:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
+        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'wo_status'], data_mh.loc[idx, 'system'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 10:30:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
         data_mh.at[idx, 'date_finish'] = data_mh['date_finish'].dt.date.apply(str)[idx] + str(' 10:00:00')
     elif data_mh.loc[idx, 'shift'] == 5 and data_mh.loc[idx, 'hour_start'] <= 18.0 and data_mh.loc[idx, 'hour_finish'] >= 18.5:
         data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], 'Break', 'NaN', 'NaN', 'NaN', 'Break', data_mh['date_start'].dt.date.apply(str)[idx] + str(' 18:00:00'), data_mh['date_start'].dt.date.apply(str)[idx] + str(' 18:30:00'), 'NaN', 'NaN', 'NaN'])
-        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 18:30:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
+        data.append([data_mh.loc[idx, 'name'], data_mh.loc[idx, 'year'], data_mh.loc[idx, 'month'], data_mh.loc[idx, 'week'], data_mh.loc[idx, 'day'], data_mh.loc[idx, 'day_cat'], data_mh.loc[idx, 'shift'], data_mh.loc[idx, 'task_cat'], data_mh.loc[idx, 'wo'], data_mh.loc[idx, 'wo_status'], data_mh.loc[idx, 'system'], data_mh.loc[idx, 'machine'], data_mh['date_start'].dt.date.apply(str)[idx] + str(' 18:30:00'), data_mh.loc[idx, 'date_finish'], 'NaN', 'NaN', 'NaN'])
         data_mh.at[idx, 'date_finish'] = data_mh['date_finish'].dt.date.apply(str)[idx] + str(' 18:00:00')
 data = pd.DataFrame(data, columns=col)
 data['date_start'] = pd.to_datetime(data['date_start'])
@@ -154,7 +162,9 @@ data_mh = data_mh.drop(['hour_start', 'hour_finish'], axis=1)
 data_mh['duration'] = (data_mh['date_finish'] - data_mh['date_start']) / np.timedelta64(1, 'h')
 data_mh = data_mh.drop(data_mh[data_mh.duration == 0].index, axis=0)
 data_mh.reset_index(inplace=True, drop=True)
-# data_mh.head(15)
+
+#%%
+data_mh[data_mh['duration'] <= 0.0]
 
 # block-8: convert Planned_spare_time to idle_time for Planned_spare_time is more than 2.5 hours
 #%%
